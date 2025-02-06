@@ -1,7 +1,7 @@
 import { IS_PUTER } from "./puter.js";
 
 const API_KEY = ""; // Get yours at https://platform.sulu.sh/apis/judge0
-const OPEN_ROUTER_KEY = "";
+const LLM_KEY = "";
 
 const AUTH_HEADERS = API_KEY
   ? {
@@ -376,7 +376,7 @@ async function openAction() {
   }
 }
 
-async function callOpenRouter(question, code) {
+async function callLLMApi(question, code) {
   const prompt = `
         You are a senior software engineer with expertise in multiple programming languages. Your task is to analyze the following code and provide detailed, actionable feedback or improvements based on the user's question.
 
@@ -393,7 +393,7 @@ async function callOpenRouter(question, code) {
     `;
 
   const body = {
-    model: "deepseek/deepseek-r1:free",
+    model: "gpt-4o-mini",
     messages: [
       {
         role: "system",
@@ -407,22 +407,22 @@ async function callOpenRouter(question, code) {
     ],
   };
 
-  const OPEN_ROUTER_HEADERS = OPEN_ROUTER_KEY
+  const LLM_AUTH_HEADERS = LLM_KEY
     ? {
-        Authorization: `Bearer ${OPEN_ROUTER_KEY}`,
+        Authorization: `Bearer ${LLM_KEY}`,
       }
     : {};
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: `https://openrouter.ai/api/v1/chat/completions`,
+      url: `https://api.openai.com/v1/chat/completions`,
       type: "POST",
       contentType: "application/json",
       data: JSON.stringify(body),
-      headers: OPEN_ROUTER_HEADERS,
+      headers: LLM_AUTH_HEADERS,
       success: function (data, textStatus, request) {
         console.log(data);
         const response = data.choices[0].message.content;
-        console.log("Message by deepseek: ", response);
+        console.log("Message by openai: ", response);
         resolve(response);
       },
       error: function (data, textStatus) {
@@ -444,7 +444,7 @@ async function sendButtonClicked() {
   newHTMLElement.innerText = userInput;
   document.getElementById("chat-messages").appendChild(newHTMLElement);
   document.getElementById("chat-field").value = "";
-  const llmResponse = await callOpenRouter(userInput, code);
+  const llmResponse = await callLLMApi(userInput, code);
   const llmHTMLElement = document.createElement("p");
   llmHTMLElement.innerText = llmResponse;
   document.getElementById("chat-messages").appendChild(llmHTMLElement);
