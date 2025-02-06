@@ -166,10 +166,10 @@ function handleRunError(jqXHR) {
   );
 }
 
-function handleResult(data) {
+async function handleResult(data) {
   const tat = Math.round(performance.now() - timeStart);
   console.log(`It took ${tat}ms to get submission result.`);
-
+  console.log("Data: ", data);
   const status = data.status;
   const stdout = decode(data.stdout);
   const compileOutput = decode(data.compile_output);
@@ -178,7 +178,19 @@ function handleResult(data) {
 
   $statusLine.html(`${status.description}, ${time}, ${memory} (TAT: ${tat}ms)`);
 
-  const output = [compileOutput, stdout].join("\n").trim();
+  let output = [compileOutput, stdout].join("\n").trim();
+
+  if (status.description !== "Accepted") {
+    console.log("Compilation error.");
+    const code = sourceEditor.getValue().trim();
+    const llmResponse = await llmErrorSuggestion(status.description, code);
+    console.log("Error response from llm: ", llmResponse);
+
+    output += `\n\nLLM Suggestion: \n\n${llmResponse}`;
+  } else {
+    console.log("No compilation error.");
+  }
+  console.log("Output: ", output);
 
   stdoutEditor.setValue(output);
 
@@ -433,6 +445,64 @@ async function callLLMApi(question, code) {
   });
 }
 
+async function llmErrorSuggestion(error, code) {
+  const prompt = `
+        You are a senior software engineer with expertise in multiple programming languages. Your task is to analyze the following error and code, and provide detailed, actionable feedback to help debug and fix the issue.
+
+        Error:
+        ${error}
+
+        Code:
+        ${code}
+
+        Please provide:
+        1. A brief, single sentence analysis of the error and its likely cause.
+        2. Specific steps to fix the error.
+        3. If applicable, provide an example of corrected code.
+
+        Note: Be concise for the explanations.
+    `;
+
+  const body = {
+    model: "gpt-4o-mini",
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are a senior software engineer with expertise in multiple programming languages.",
+      },
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+  };
+
+  const LLM_AUTH_HEADERS = LLM_KEY
+    ? {
+        Authorization: `Bearer ${LLM_KEY}`,
+      }
+    : {};
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: `https://api.openai.com/v1/chat/completions`,
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(body),
+      headers: LLM_AUTH_HEADERS,
+      success: function (data, textStatus, request) {
+        console.log(data);
+        const response = data.choices[0].message.content;
+        console.log("Message by openai: ", response);
+        resolve(response);
+      },
+      error: function (data, textStatus) {
+        console.log("Error getting response from open router.");
+        reject("Error.");
+      },
+    });
+  });
+}
 async function sendButtonClicked() {
   console.log("Button clicked");
   const userInput = document.getElementById("chat-field").value;
