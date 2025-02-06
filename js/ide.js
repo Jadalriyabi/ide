@@ -1,7 +1,7 @@
 import { IS_PUTER } from "./puter.js";
 
 const API_KEY = ""; // Get yours at https://platform.sulu.sh/apis/judge0
-const OPEN_ROUTER_KEY = "";
+const LLM_KEY = "";
 
 const AUTH_HEADERS = API_KEY
   ? {
@@ -376,35 +376,60 @@ async function openAction() {
   }
 }
 
-async function callOpenRouter(question, code) {
+async function callLLMApi(question, code) {
+  const prompt = `
+        You are a senior software engineer with expertise in multiple programming languages. Your task is to analyze the following code and provide detailed, actionable feedback or improvements based on the user's question.
+
+        User's Question: ${question}
+
+        Code:
+        ${code}
+
+        Please provide:
+        1. A brief analysis of the code.
+        2. Specific improvements or optimizations that can be made.
+        3. Any best practices or design patterns that could be applied.
+        4. If applicable, provide an example of improved code.
+    `;
+
   const body = {
-    model: "deepseek/deepseek-r1:free",
+    model: "gpt-4o-mini",
     messages: [
       {
+        role: "system",
+        content:
+          "You are a senior software engineer with expertise in multiple programming languages.",
+      },
+      {
         role: "user",
-        content: question,
+        content: prompt,
       },
     ],
   };
 
-  const OPEN_ROUTER_HEADERS = OPEN_ROUTER_KEY
+  const LLM_AUTH_HEADERS = LLM_KEY
     ? {
-        Authorization: `Bearer ${OPEN_ROUTER_KEY}`,
+        Authorization: `Bearer ${LLM_KEY}`,
       }
     : {};
-
-  $.ajax({
-    url: `https://openrouter.ai/api/v1/chat/completions`,
-    type: "POST",
-    contentType: "application/json",
-    data: JSON.stringify(body),
-    headers: OPEN_ROUTER_HEADERS,
-    success: function (data, textStatus, request) {
-      console.log(data);
-    },
-    error: function (data, textStatus) {
-      console.log("Error getting response from open router.");
-    },
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: `https://api.openai.com/v1/chat/completions`,
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(body),
+      headers: LLM_AUTH_HEADERS,
+      success: function (data, textStatus, request) {
+        console.log(data);
+        const response = data.choices[0].message.content;
+        console.log("Message by openai: ", response);
+        resolve(response);
+      },
+      error: function (data, textStatus) {
+        console.log("Error getting response from open router.");
+        reject("Error.");
+      },
+    });
   });
 }
 
@@ -419,7 +444,10 @@ async function sendButtonClicked() {
   newHTMLElement.innerText = userInput;
   document.getElementById("chat-messages").appendChild(newHTMLElement);
   document.getElementById("chat-field").value = "";
-  await callOpenRouter(userInput, code);
+  const llmResponse = await callLLMApi(userInput, code);
+  const llmHTMLElement = document.createElement("p");
+  llmHTMLElement.innerText = llmResponse;
+  document.getElementById("chat-messages").appendChild(llmHTMLElement);
 }
 
 async function saveAction() {
