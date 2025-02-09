@@ -19,3 +19,46 @@
         display: none !important;
     }
 }
+
+.custom-popup {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 400px;
+    height: 200px;
+    background-color: white;
+    border: 5px solid black;
+    border-radius: 10px;
+    padding: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.popup-close-btn {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: black;
+    border: none;
+    color: white;
+}
+
+.popup-close-btn:hover {
+    background: rgb(185, 32, 32);
+}
+
+
+.inline-chat-messages {
+    display: flex;
+    flex-direction: column;
+    height: 50%;
+    overflow: auto;
+    background-color: aquamarine;
+}

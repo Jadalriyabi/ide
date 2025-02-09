@@ -503,6 +503,68 @@ async function llmErrorSuggestion(error, code) {
     });
   });
 }
+
+async function llmInLineChat(wholeCode, highlightedCode, query) {
+  const prompt = `
+        You are a senior software engineer with expertise in multiple programming languages. Your task is to analyze the following segment of code and the whole code from which that segment code belongs to. Provide a detailed yet concise response to the question/comment that the user has.
+
+        Question/Comment:
+        ${query}
+
+        Segment of Code:
+        ${highlightedCode}
+
+        Whole Code:
+        ${wholeCode}
+
+        Please provide:
+        1. One second analysis for segment of code in regard tot he whole code.
+        2. Direct answer to the comment/question.
+
+        Note: Be concise and clear. No hallucinations.
+    `;
+
+  const body = {
+    model: "gpt-4o-mini",
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are a senior software engineer with expertise in multiple programming languages.",
+      },
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+  };
+
+  const LLM_AUTH_HEADERS = LLM_KEY
+    ? {
+        Authorization: `Bearer ${LLM_KEY}`,
+      }
+    : {};
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: `https://api.openai.com/v1/chat/completions`,
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(body),
+      headers: LLM_AUTH_HEADERS,
+      success: function (data, textStatus, request) {
+        console.log(data);
+        const response = data.choices[0].message.content;
+        console.log("Message by openai: ", response);
+        resolve(response);
+      },
+      error: function (data, textStatus) {
+        console.log("Error getting response from open router.");
+        reject("Error.");
+      },
+    });
+  });
+}
+
 async function sendButtonClicked() {
   console.log("Button clicked");
   const userInput = document.getElementById("chat-field").value;
@@ -863,6 +925,88 @@ document.addEventListener("DOMContentLoaded", async function () {
   document
     .getElementById("chat-button")
     .addEventListener("click", sendButtonClicked);
+
+  sourceEditor.addAction({
+    id: "inline-llm-chat",
+    label: "Inline LLM Chat",
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 1,
+    run: function (editor) {
+      console.log("Hi");
+      const selection = editor.getSelection();
+      const hasSelection = !selection.isEmpty();
+
+      if (hasSelection) {
+        const selectedText = sourceEditor.getModel().getValueInRange(selection);
+        console.log("Highlighted text: ", selectedText);
+
+        const selectionPosition = editor.getScrolledVisiblePosition(
+          selection.getStartPosition()
+        );
+
+        // Create popup
+        const popup = document.createElement("div");
+        popup.className = "custom-popup";
+        popup.textContent = "This is a popup!";
+
+        const chatMessages = document.createElement("div");
+        chatMessages.className = "inline-chat-messages";
+
+        const startingMessage = document.createElement("p");
+        startingMessage.innerText = "Let's talk about what you selected.";
+        chatMessages.appendChild(startingMessage);
+
+        popup.appendChild(chatMessages);
+
+        const chatField = document.createElement("input");
+        chatField.id = "inline-chat-field";
+        chatField.type = "text";
+        popup.appendChild(chatField);
+
+        const inlineSubmitButton = document.createElement("button");
+        inlineSubmitButton.id = "inline-chat-submit-button";
+        inlineSubmitButton.innerText = "Submit";
+        if (inlineSubmitButton) {
+          inlineSubmitButton.addEventListener("click", async () => {
+            const input = document.getElementById("inline-chat-field");
+            if (input) {
+              console.log("Input value: ", input.value);
+              const newMsg = document.createElement("p");
+              newMsg.innerText = input.value;
+              chatMessages.appendChild(newMsg);
+              const newLlmResponse = await llmInLineChat(
+                editor.getValue().trim(),
+                selectedText,
+                input.value
+              );
+              const llmMessage = document.createElement("p");
+              llmMessage.innerText = newLlmResponse;
+              chatMessages.appendChild(llmMessage);
+            }
+          });
+        }
+
+        popup.appendChild(inlineSubmitButton);
+
+        // Position popup above selection
+        const editorDomNode = editor.getDomNode();
+        const editorCoords = editorDomNode.getBoundingClientRect();
+        popup.style.top = `${editorCoords.top + selectionPosition.top - 200}px`;
+        popup.style.left = `${editorCoords.left + selectionPosition.left}px`;
+
+        const closeBtn = document.createElement("button");
+
+        closeBtn.className = "popup-close-btn";
+        closeBtn.innerHTML = "×";
+        closeBtn.onclick = () => popup.remove();
+
+        popup.appendChild(closeBtn);
+        document.body.appendChild(popup);
+      } else {
+        console.log("Nothing is highlighted.");
+      }
+    },
+  });
 
   window.onmessage = function (e) {
     if (!e.data) {
