@@ -947,7 +947,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         // Create popup
         const popup = document.createElement("div");
         popup.className = "custom-popup";
-        popup.textContent = "This is a popup!";
+        popup.textContent = "Inline Suggestions";
 
         const chatMessages = document.createElement("div");
         chatMessages.className = "inline-chat-messages";
