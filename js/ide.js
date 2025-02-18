@@ -386,6 +386,14 @@ function getSourceCodeName() {
   return $(".lm_title")[0].innerText;
 }
 
+/**
+ * Opens a file by displaying its content in the source editor,
+ * selecting the appropriate language mode based on the file extension,
+ * and updating the editor with the file name.
+ *
+ * @param {string} content - The content of the file to be opened.
+ * @param {string} filename - The name of the file, including its extension.
+ */
 function openFile(content, filename) {
   clear();
   sourceEditor.setValue(content);
