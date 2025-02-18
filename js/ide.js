@@ -438,6 +438,17 @@ async function openAction() {
   } else {
     document.getElementById("open-file-input").click();
   }
+
+  
+/**
+ * Calls the OpenRouter API to analyze the provided code and respond to the user's query.
+ *
+ * @param {string} query - The user's query about the code.
+ * @param {string} code - The code to be analyzed.
+ * @returns {Promise<string>} - A promise that resolves to the response message from the OpenRouter API.
+ *
+ * @throws {Error} - Throws an error if the API call fails or returns a non-OK status.
+ */
 async function callLLMApi(query, code) {
   const prompt = `
     You are a senior software engineer with expertise in multiple programming languages. Your task is to analyze the following code and provide a detailed yet concise response to the user's query.
