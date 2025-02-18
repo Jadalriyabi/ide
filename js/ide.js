@@ -593,6 +593,18 @@ async function llmInLineChat(wholeCode, highlightedCode, query) {
   });
 }
 
+/**
+ * Handles the click event of the send button.
+ * Retrieves the chat input and the source code from the respective elements,
+ * appends the user's message to the chat display, and then calls the LLM API
+ * with the user input and source code. The response from the LLM API is then
+ * appended to the chat display. In case of an error during the API call,
+ * an error message is displayed instead.
+ *
+ * @async
+ * @function sendButtonClicked
+ * @returns {Promise<void>} A promise that resolves when the operation is complete.
+ */
 async function sendButtonClicked() {
   console.log("Button clicked");
   const chatField = document.getElementById("chat-field");
