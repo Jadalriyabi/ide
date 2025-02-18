@@ -521,6 +521,17 @@ async function callLLMApi(query, code) {
   }
 }
 
+/**
+ * Asynchronously sends a request to the LLM Chat API for inline code analysis.
+ *
+ * Constructs a prompt that includes a question/comment, a highlighted code segment, and the whole source code.
+ * The function then sends this prompt to the specified API endpoint to analyze the code and provide a concise response.
+ *
+ * @param {string} wholeCode - The complete source code from which the highlighted segment is extracted.
+ * @param {string} highlightedCode - The segment of the code to be analyzed.
+ * @param {string} query - The question or comment regarding the code.
+ * @returns {Promise<string>} A promise that resolves with the analysis result message from the API.
+ */
 async function llmInLineChat(wholeCode, highlightedCode, query) {
   const prompt = `
         You are a senior software engineer with expertise in multiple programming languages. Your task is to analyze the following segment of code and the whole code from which that segment code belongs to. Provide a detailed yet concise response to the question/comment that the user has.
