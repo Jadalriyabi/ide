@@ -781,6 +781,15 @@ function clear() {
   $statusLine.html("");
 }
 
+/**
+ * Adjusts the height and padding of the site content to match the window height
+ * and the height of the navigation bar.
+ *
+ * This function retrieves the height of the navigation bar with the ID
+ * "judge0-site-navigation" and sets the height of the site content with the ID
+ * "judge0-site-content" to the window's inner height. It also sets the top
+ * padding of the site content to the height of the navigation bar.
+ */
 function refreshSiteContentHeight() {
   const navigationHeight = document.getElementById(
     "judge0-site-navigation"
