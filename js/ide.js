@@ -63,8 +63,8 @@ var layoutConfig = {
         {
           type: "component",
           width: 66,
-          componentName: "source",
           id: "source",
+          componentName: "source",
           title: "Source Code",
           isClosable: false,
           componentState: {
@@ -114,15 +114,14 @@ var layoutConfig = {
 var gPuterFile;
 
 function encode(str) {
-  return btoa(unescape(encodeURIComponent(str || "")));
+  return btoa(decodeURIComponent(encodeURIComponent(str || "")));
 }
 
 function decode(bytes) {
-  var escaped = escape(atob(bytes || ""));
   try {
-    return decodeURIComponent(escaped);
+    return decodeURIComponent(atob(bytes || ""));
   } catch {
-    return unescape(escaped);
+    return atob(bytes || "");
   }
 }
 
@@ -216,13 +215,38 @@ async function getSelectedLanguage() {
 }
 
 function getSelectedLanguageId() {
-  return parseInt($selectLanguage.val());
+function getSelectedLanguageId() {
+  const value = $selectLanguage.val();
+  const languageId = parseInt(value);
+  if (isNaN(languageId)) {
+    showError("Error", "Selected language ID is not a valid integer.");
+    return null;
+  }
+  return languageId;
 }
-
 function getSelectedLanguageFlavor() {
   return $selectLanguage.find(":selected").attr("flavor");
 }
 
+/**
+ * Initiates the process of executing the code in the source editor.
+ *
+ * The function performs the following steps:
+ * - Checks if the source editor contains non-empty code. If empty, it displays an error message and aborts execution.
+ * - Disables the run button to prevent duplicate submissions.
+ * - Clears previous standard output and status messages.
+ * - Sets the active output tab in the layout.
+ * - Retrieves and encodes the source code and standard input from their respective editors.
+ * - Retrieves the selected language ID and flavor, along with any compiler options and command-line arguments.
+ * - For a specific language ID (44), the source code is used without encoding.
+ * - Constructs a data payload object with the encoded source, language details, and execution settings.
+ * - For language ID 82 (typically representing SQLite), it ensures additional files are loaded before submission.
+ * - Posts a 'preExecution' event to the top window to notify external listeners.
+ * - Sends an AJAX POST request to the remote execution service. On success, it fetches the submission status after an initial wait time using the returned token and region information.
+ *
+ * @function run
+ * @returns {void}
+ */
 function run() {
   if (sourceEditor.getValue().trim() === "") {
     showError("Error", "Source code can't be empty!");
