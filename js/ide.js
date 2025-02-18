@@ -111,7 +111,7 @@ var layoutConfig = {
   ],
 };
 
-var gPuterFile;
+var puterFile;
 
 function encode(str) {
   return btoa(decodeURIComponent(encodeURIComponent(str || "")));
@@ -636,15 +636,15 @@ async function sendButtonClicked() {
 }
 
 async function saveAction() {
-  if (IS_PUTER) {
-    if (gPuterFile) {
-      gPuterFile.write(sourceEditor.getValue());
+  if (usePuter()) {
+    if (puterFile) {
+      puterFile.write(sourceEditor.getValue());
     } else {
-      gPuterFile = await usePuter.ui.showSaveFilePicker(
+      puterFile = await usePuter.ui.showSaveFilePicker(
         sourceEditor.getValue(),
         getSourceCodeName()
       );
-      setSourceCodeName(gPuterFile.name);
+      setSourceCodeName(puterFile.name);
     }
   } else {
     saveFile(sourceEditor.getValue(), getSourceCodeName());
