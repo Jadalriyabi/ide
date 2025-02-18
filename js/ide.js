@@ -111,7 +111,7 @@ var layoutConfig = {
   ],
 };
 
-var gPuterFile;
+var puterFile;
 
 function encode(str) {
   return btoa(decodeURIComponent(encodeURIComponent(str || "")));
@@ -593,9 +593,26 @@ async function llmInLineChat(wholeCode, highlightedCode, query) {
   });
 }
 
+/**
+ * Handles the click event of the send button.
+ * Retrieves the chat input and the source code from the respective elements,
+ * appends the user's message to the chat display, and then calls the LLM API
+ * with the user input and source code. The response from the LLM API is then
+ * appended to the chat display. In case of an error during the API call,
+ * an error message is displayed instead.
+ *
+ * @async
+ * @function sendButtonClicked
+ * @returns {Promise<void>} A promise that resolves when the operation is complete.
+ */
 async function sendButtonClicked() {
   console.log("Button clicked");
-  const userInput = document.getElementById("chat-field").value;
+  const chatField = document.getElementById("chat-field");
+  if (!chatField) {
+    console.error("Chat field not found");
+    return;
+  }
+  const userInput = chatField.value;
   console.log(userInput);
   const code = sourceEditor.getValue().trim();
   console.log("Source editor text: ", code);
@@ -603,23 +620,31 @@ async function sendButtonClicked() {
   const newHTMLElement = document.createElement("p");
   newHTMLElement.innerText = userInput;
   document.getElementById("chat-messages").appendChild(newHTMLElement);
-  document.getElementById("chat-field").value = "";
-  const llmResponse = await callLLMApi(userInput, code);
+  chatField.value = "";
+  
+  let llmResponse;
+  try {
+    llmResponse = await callLLMApi(userInput, code);
+  } catch (error) {
+    console.error("Error calling LLM API:", error);
+    llmResponse = "Error calling LLM API.";
+  }
+  
   const llmHTMLElement = document.createElement("p");
   llmHTMLElement.innerText = llmResponse;
   document.getElementById("chat-messages").appendChild(llmHTMLElement);
 }
 
 async function saveAction() {
-  if (IS_PUTER) {
-    if (gPuterFile) {
-      gPuterFile.write(sourceEditor.getValue());
+  if (usePuter()) {
+    if (puterFile) {
+      puterFile.write(sourceEditor.getValue());
     } else {
-      gPuterFile = await usePuter.ui.showSaveFilePicker(
+      puterFile = await usePuter.ui.showSaveFilePicker(
         sourceEditor.getValue(),
         getSourceCodeName()
       );
-      setSourceCodeName(gPuterFile.name);
+      setSourceCodeName(puterFile.name);
     }
   } else {
     saveFile(sourceEditor.getValue(), getSourceCodeName());
@@ -756,6 +781,15 @@ function clear() {
   $statusLine.html("");
 }
 
+/**
+ * Adjusts the height and padding of the site content to match the window height
+ * and the height of the navigation bar.
+ *
+ * This function retrieves the height of the navigation bar with the ID
+ * "judge0-site-navigation" and sets the height of the site content with the ID
+ * "judge0-site-content" to the window's inner height. It also sets the top
+ * padding of the site content to the height of the navigation bar.
+ */
 function refreshSiteContentHeight() {
   const navigationHeight = document.getElementById(
     "judge0-site-navigation"
