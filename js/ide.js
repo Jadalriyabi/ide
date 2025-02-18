@@ -595,7 +595,12 @@ async function llmInLineChat(wholeCode, highlightedCode, query) {
 
 async function sendButtonClicked() {
   console.log("Button clicked");
-  const userInput = document.getElementById("chat-field").value;
+  const chatField = document.getElementById("chat-field");
+  if (!chatField) {
+    console.error("Chat field not found");
+    return;
+  }
+  const userInput = chatField.value;
   console.log(userInput);
   const code = sourceEditor.getValue().trim();
   console.log("Source editor text: ", code);
@@ -603,8 +608,16 @@ async function sendButtonClicked() {
   const newHTMLElement = document.createElement("p");
   newHTMLElement.innerText = userInput;
   document.getElementById("chat-messages").appendChild(newHTMLElement);
-  document.getElementById("chat-field").value = "";
-  const llmResponse = await callLLMApi(userInput, code);
+  chatField.value = "";
+  
+  let llmResponse;
+  try {
+    llmResponse = await callLLMApi(userInput, code);
+  } catch (error) {
+    console.error("Error calling LLM API:", error);
+    llmResponse = "Error calling LLM API.";
+  }
+  
   const llmHTMLElement = document.createElement("p");
   llmHTMLElement.innerText = llmResponse;
   document.getElementById("chat-messages").appendChild(llmHTMLElement);
