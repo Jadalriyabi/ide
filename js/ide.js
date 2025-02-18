@@ -439,7 +439,7 @@ async function openAction() {
     document.getElementById("open-file-input").click();
   }
 
-  
+
 /**
  * Calls the OpenRouter API to analyze the provided code and respond to the user's query.
  *
@@ -568,13 +568,13 @@ async function llmInLineChat(wholeCode, highlightedCode, query) {
       contentType: "application/json",
       data: JSON.stringify(body),
       headers: LLM_AUTH_HEADERS,
-      success: function (data, textStatus, request) {
+      success: function (data) {
         console.log(data);
         const response = data.choices[0].message.content;
         console.log("Message by openai: ", response);
         resolve(response);
       },
-      error: function (data, textStatus) {
+      error: function () {
         console.log("Error getting response from open router.");
         reject("Error.");
       },
@@ -604,7 +604,7 @@ async function saveAction() {
     if (gPuterFile) {
       gPuterFile.write(sourceEditor.getValue());
     } else {
-      gPuterFile = await puter.ui.showSaveFilePicker(
+      gPuterFile = await usePuter.ui.showSaveFilePicker(
         sourceEditor.getValue(),
         getSourceCodeName()
       );
