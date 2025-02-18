@@ -438,22 +438,32 @@ async function openAction() {
   } else {
     document.getElementById("open-file-input").click();
   }
-}
-
-async function callLLMApi(question, code) {
+async function callLLMApi(query, code) {
   const prompt = `
-    You are a senior software engineer ... (rest of your prompt)
+    You are a senior software engineer with expertise in multiple programming languages. Your task is to analyze the following code and provide a detailed yet concise response to the user's query.
+
+    User Query:
+    ${query}
+
+    Code:
+    ${code}
+
+    Please provide:
+    1. A brief analysis of the code.
+    2. A direct answer to the user's query.
+
+    Note: Be concise and clear. No hallucinations.
   `;
 
   const body = {
     model: "gpt-3.5-turbo", // Or another model available through OpenRouter
     messages: [
-      { role: "system", content: "You are a senior software engineer..." },
+      { role: "system", content: "You are a senior software engineer with expertise in multiple programming languages." },
       { role: "user", content: prompt },
     ],
   };
 
-  const OPENROUTER_API_KEY = LLM_KEY; // **REPLACE with your actual OpenRouter key**
+  const OPEN_ROUTER_API_KEY = LLM_KEY; // **REPLACE with your actual OpenRouter key**
 
   console.log("Calling OpenRouter API..."); // Initial log
 
@@ -465,7 +475,7 @@ async function callLLMApi(question, code) {
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+          Authorization: `Bearer ${OPEN_ROUTER_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
@@ -498,11 +508,6 @@ async function callLLMApi(question, code) {
     console.error("Error calling OpenRouter API (catch block):", error); // Log error from catch block
     return "Error getting response from OpenRouter."; // Handle the error gracefully
   }
-}
-
-function getSelectedText() {
-  const selection = window.getSelection();
-  return selection.toString();
 }
 
 async function llmInLineChat(wholeCode, highlightedCode, query) {
