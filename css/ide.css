@@ -61,15 +61,11 @@
     min-width: 15rem !important;
 }
 
-#judge0-status-line {
-    font-family: "JetBrains Mono" !important;
-}
-
 #judge0-status-line:empty {
     display: none;
 }
 
-.judge0-hidden {
+.judge0-hidden, .judge0-style-hidden {
     display: none !important;
 }
 

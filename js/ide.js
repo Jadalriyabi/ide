@@ -1,4 +1,4 @@
-import { IS_PUTER } from "./puter.js";
+import { usePuter } from "./puter.js";
 
 const API_KEY = "sk_live_r3UjdsJPm8DOsaJVHJUBYX6gXX5gDyyR"; // Get yours at https://platform.sulu.sh/apis/judge0
 const LLM_KEY =
@@ -963,44 +963,19 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    if (e.data.action === "get") {
-      window.top.postMessage(
-        JSON.parse(
-          JSON.stringify({
-            event: "getResponse",
-            source_code: sourceEditor.getValue(),
-            language_id: getSelectedLanguageId(),
-            flavor: getSelectedLanguageFlavor(),
-            stdin: stdinEditor.getValue(),
-            stdout: stdoutEditor.getValue(),
-            compiler_options: $compilerOptions.val(),
-            command_line_arguments: $commandLineArguments.val(),
-          })
-        ),
-        "*"
-      );
-    } else if (e.data.action === "set") {
-      if (e.data.source_code) {
-        sourceEditor.setValue(e.data.source_code);
-      }
-      if (e.data.language_id && e.data.flavor) {
-        selectLanguageByFlavorAndId(e.data.language_id, e.data.flavor);
-      }
-      if (e.data.stdin) {
-        stdinEditor.setValue(e.data.stdin);
-      }
-      if (e.data.stdout) {
-        stdoutEditor.setValue(e.data.stdout);
-      }
-      if (e.data.compiler_options) {
-        $compilerOptions.val(e.data.compiler_options);
-      }
-      if (e.data.command_line_arguments) {
-        $commandLineArguments.val(e.data.command_line_arguments);
-      }
-      if (e.data.api_key) {
-        AUTH_HEADERS["Authorization"] = `Bearer ${e.data.api_key}`;
-      }
+    [$runBtn].forEach(btn => {
+        btn.attr("data-content", `${superKey}${btn.attr("data-content")}`);
+    });
+
+    document.querySelectorAll(".description").forEach(e => {
+        e.innerText = `${superKey}${e.innerText}`;
+    });
+
+    if (usePuter()) {
+        puter.ui.onLaunchedWithItems(async function (items) {
+            gPuterFile = items[0];
+            openFile(await (await gPuterFile.read()).text(), gPuterFile.name);
+        });
     }
   };
 });
