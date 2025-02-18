@@ -422,6 +422,15 @@ function saveFile(content, filename) {
   URL.revokeObjectURL(link.href);
 }
 
+/**
+ * Opens a file using the appropriate method based on the environment.
+ * If running on a specific platform (IS_PUTER), it uses a custom file picker.
+ * Otherwise, it triggers a file input element to open the file picker dialog.
+ *
+ * @async
+ * @function openAction
+ * @returns {Promise<void>} A promise that resolves when the file is opened.
+ */
 async function openAction() {
   if (IS_PUTER) {
     gPuterFile = await puter.ui.showOpenFilePicker();
