@@ -401,6 +401,16 @@ function openFile(content, filename) {
   setSourceCodeName(filename);
 }
 
+/**
+ * Saves the specified content to a file with the given filename.
+ *
+ * This function creates a Blob object from the provided content, generates a temporary URL for the blob,
+ * creates an anchor element with the download attribute set to the provided filename, simulates a click on it
+ * to trigger the download, and then cleans up the created elements and URL.
+ *
+ * @param {string} content - The text content to be saved in the file.
+ * @param {string} filename - The desired name for the saved file.
+ */
 function saveFile(content, filename) {
   const blob = new Blob([content], { type: "text/plain" });
   const link = document.createElement("a");
