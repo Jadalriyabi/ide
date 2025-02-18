@@ -1,7 +1,8 @@
 import { IS_PUTER } from "./puter.js";
 
-const API_KEY = ""; // Get yours at https://platform.sulu.sh/apis/judge0
-const LLM_KEY = "";
+const API_KEY = "sk_live_r3UjdsJPm8DOsaJVHJUBYX6gXX5gDyyR"; // Get yours at https://platform.sulu.sh/apis/judge0
+const LLM_KEY =
+  "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";
 
 const AUTH_HEADERS = API_KEY
   ? {
@@ -390,118 +391,67 @@ async function openAction() {
 
 async function callLLMApi(question, code) {
   const prompt = `
-        You are a senior software engineer with expertise in multiple programming languages. Your task is to analyze the following code and provide detailed, actionable feedback or improvements based on the user's question.
-
-        User's Question: ${question}
-
-        Code:
-        ${code}
-
-        Please provide:
-        1. A brief analysis of the code.
-        2. Specific improvements or optimizations that can be made.
-        3. Any best practices or design patterns that could be applied.
-        4. If applicable, provide an example of improved code.
-    `;
+    You are a senior software engineer ... (rest of your prompt)
+  `;
 
   const body = {
-    model: "gpt-4o-mini",
+    model: "gpt-3.5-turbo", // Or another model available through OpenRouter
     messages: [
-      {
-        role: "system",
-        content:
-          "You are a senior software engineer with expertise in multiple programming languages.",
-      },
-      {
-        role: "user",
-        content: prompt,
-      },
+      { role: "system", content: "You are a senior software engineer..." },
+      { role: "user", content: prompt },
     ],
   };
 
-  const LLM_AUTH_HEADERS = LLM_KEY
-    ? {
-        Authorization: `Bearer ${LLM_KEY}`,
+  const OPENROUTER_API_KEY = LLM_KEY; // **REPLACE with your actual OpenRouter key**
+
+  console.log("Calling OpenRouter API..."); // Initial log
+
+  try {
+    console.log("Request Body:", JSON.stringify(body, null, 2)); // Log request body (formatted)
+
+    const response = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
       }
-    : {};
-  return new Promise((resolve, reject) => {
-    $.ajax({
-      url: `https://api.openai.com/v1/chat/completions`,
-      type: "POST",
-      contentType: "application/json",
-      data: JSON.stringify(body),
-      headers: LLM_AUTH_HEADERS,
-      success: function (data, textStatus, request) {
-        console.log(data);
-        const response = data.choices[0].message.content;
-        console.log("Message by openai: ", response);
-        resolve(response);
-      },
-      error: function (data, textStatus) {
-        console.log("Error getting response from open router.");
-        reject("Error.");
-      },
-    });
-  });
+    );
+
+    console.log("Response Status:", response.status); // Log response status
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error(
+        "OpenRouter Error:",
+        response.status,
+        response.statusText,
+        errorData
+      ); // Detailed error log
+      throw new Error(
+        `${response.status} ${response.statusText}: ${JSON.stringify(
+          errorData
+        )}`
+      );
+    }
+
+    const data = await response.json();
+    console.log("OpenRouter Response Data:", JSON.stringify(data, null, 2)); // Log full response data (formatted)
+    const message = data.choices[0].message.content; // Adjust based on OpenRouter response structure
+    console.log("OpenRouter Message:", message);
+    return message;
+  } catch (error) {
+    console.error("Error calling OpenRouter API (catch block):", error); // Log error from catch block
+    return "Error getting response from OpenRouter."; // Handle the error gracefully
+  }
 }
 
-async function llmErrorSuggestion(error, code) {
-  const prompt = `
-        You are a senior software engineer with expertise in multiple programming languages. Your task is to analyze the following error and code, and provide detailed, actionable feedback to help debug and fix the issue.
-
-        Error:
-        ${error}
-
-        Code:
-        ${code}
-
-        Please provide:
-        1. A brief, single sentence analysis of the error and its likely cause.
-        2. Specific steps to fix the error.
-        3. If applicable, provide an example of corrected code.
-
-        Note: Be concise for the explanations.
-    `;
-
-  const body = {
-    model: "gpt-4o-mini",
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are a senior software engineer with expertise in multiple programming languages.",
-      },
-      {
-        role: "user",
-        content: prompt,
-      },
-    ],
-  };
-
-  const LLM_AUTH_HEADERS = LLM_KEY
-    ? {
-        Authorization: `Bearer ${LLM_KEY}`,
-      }
-    : {};
-  return new Promise((resolve, reject) => {
-    $.ajax({
-      url: `https://api.openai.com/v1/chat/completions`,
-      type: "POST",
-      contentType: "application/json",
-      data: JSON.stringify(body),
-      headers: LLM_AUTH_HEADERS,
-      success: function (data, textStatus, request) {
-        console.log(data);
-        const response = data.choices[0].message.content;
-        console.log("Message by openai: ", response);
-        resolve(response);
-      },
-      error: function (data, textStatus) {
-        console.log("Error getting response from open router.");
-        reject("Error.");
-      },
-    });
-  });
+function getSelectedText() {
+  const selection = window.getSelection();
+  return selection.toString();
 }
 
 async function llmInLineChat(wholeCode, highlightedCode, query) {
@@ -874,7 +824,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     layout.registerComponent("happy-face", function (container, state) {
       happyFaceEditor = container.getElement().html(
         `<div style="display:flex; flex-direction: column; gap: 1rem;color: white; padding:1rem; height: 100%;">
-                😊 Hello Headstarter!
+                Hello Coder :)
                 <div id="chat-messages" style="display:flex; flex-direction: column; overflow: auto; max-height: 90%;">
                     <p> Feel free to ask questions about the code!</p>
                 </div>

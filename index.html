@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script>
@@ -108,8 +108,13 @@
             </div>
         </div>
         <div class="item">
-            <div class="ui input">
-                <select id="select-language" class="ui search selection dropdown"></select>
+            <div class="relative inline-block w-full">  <select id="select-language" class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                </div>
             </div>
         </div>
         <div class="item">
@@ -125,9 +130,8 @@
             </div>
         </div>
         <div class="item">
-            <button id="run-btn" class="ui primary labeled icon button" data-content="+↵" data-position="bottom center">
-                <i class="play icon"></i>Run Code
-            </button>
+            <button id="run-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">
+                <i class="play icon"></i> Run Code (Ctrl+Enter)  </button>
         </div>
         <div class="right menu">
             <div id="judge0-theme-toggle-btn" class="icon link item" data-content="">
