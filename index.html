@@ -80,10 +80,10 @@
     <meta name="theme-color" content="#ffffff">
 </head>
 
-<body>
-    <div id="judge0-site-navigation" class="ui top fixed borderless menu">
+<body class="bg-gray-100">
+    <div id="judge0-site-navigation" class="ui top fixed borderless menu bg-white shadow-md">
         <a id="judge0-header" href="https://judge0.com" target="_blank" class="header item judge0-default-visible">
-            <img id="judge0-logo" src="./images/icon_var2_rounded_512.png">
+            <img id="judge0-logo" src="./images/icon_var2_rounded_512.png" class="h-8">
         </a>
         <div class="ui simple dropdown item">
             <span class="text">File</span>
@@ -112,7 +112,8 @@
             </div>
         </div>
         <div class="item">
-            <div class="relative inline-block w-full">  <select id="select-language" class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+            <div class="relative inline-block w-full"></div>
+                <select id="select-language" class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -124,18 +125,19 @@
         <div class="item">
             <div class="ui left icon transparent input">
                 <i class="flag icon"></i>
-                <input id="compiler-options" type="text" placeholder="Compiler options"></input>
+                <input id="compiler-options" type="text" placeholder="Compiler options" class="bg-gray-100 rounded px-2 py-1">
             </div>
         </div>
         <div class="item">
             <div class="ui left icon transparent input">
                 <i class="terminal icon"></i>
-                <input id="command-line-arguments" type="text" placeholder="Command line arguments"></input>
+                <input id="command-line-arguments" type="text" placeholder="Command line arguments" class="bg-gray-100 rounded px-2 py-1">
             </div>
         </div>
         <div class="item">
             <button id="run-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">
-                <i class="play icon"></i> Run Code (Ctrl+Enter)  </button>
+                <i class="play icon"></i> Run Code (Ctrl+Enter)
+            </button>
         </div>
         <div class="right menu">
             <div id="judge0-theme-toggle-btn" class="icon link item" data-content="">
@@ -154,7 +156,7 @@
         </div>
     </div>
 
-    <div id="judge0-site-content"></div>
+    <div id="judge0-site-content" class="p-4"></div>
 
     <div id="judge0-site-modal" class="ui modal">
         <div class="header">
